@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) {
         String classPath = System.getProperty("user.dir");
         log.info("当前目录:{}", classPath);
-        classPath = "F:\\java_test\\git\\collateFile\\src\\main\\resources\\lyTest\\a";
+        //classPath = "F:\\java_test\\git\\collateFile\\src\\main\\resources\\lyTest\\a";
 
         File directory = new File(classPath);
         new Main().b(directory);
