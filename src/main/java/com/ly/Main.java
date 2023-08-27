@@ -16,6 +16,7 @@ public class Main {
         ////classPath = "F:\\java_test\\git\\collateFile\\src\\main\\resources\\lyTest\\a";
 
         File directory = new File(classPath);
+        FileHandler.addIgnoreDir(".git","src");
         FileHandler.handle(directory);
     }
 

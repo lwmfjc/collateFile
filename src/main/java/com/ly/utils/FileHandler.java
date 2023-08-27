@@ -13,14 +13,22 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class FileHandler {
+    private static List<String> ignoreDirs = new ArrayList<>();
 
     private static Pattern ptCompileAll = Pattern.compile("_[0-9]{6}_[0-9]{6}([ ]\\([0-9]+\\))*\\..+");
     private static Pattern ptCompileCompare = Pattern.compile("_[0-9]{6}_[0-9]{6}([ ]\\([0-9]+\\))*");
     private final static String extraKeyDate = "extraDate";
     private final static String extraKeyNo = "extraNo";
 
+    public static void addIgnoreDir(String... ignoreDirsStr) {
+        for (String ignoreDir : ignoreDirsStr) {
+            ignoreDirs.add(ignoreDir);
+        }
+    }
+
     /**
      * 从directory文件夹开始递归处理
+     *
      * @param directory
      */
     public static void handle(File directory) {
@@ -172,7 +180,18 @@ public class FileHandler {
                 }
             }
 
-            List<File> directoryS = filesList.stream().filter(File::isDirectory).collect(Collectors.toList());
+            List<File> directoryS = filesList.stream().filter(file -> {
+                boolean isDir = file.isDirectory();
+                boolean passFilter = true;//通过过滤
+                for (String ignoreDir : ignoreDirs) {
+                    if (isDir && file.getName().equals(ignoreDir)) {
+                        log.info("文件夹--({})不处理", file.getName());
+                        passFilter = false;
+                        break;
+                    }
+                }
+                return isDir && passFilter;
+            }).collect(Collectors.toList());
             for (File file : directoryS) {
                 handle(file);
             }
@@ -186,7 +205,7 @@ public class FileHandler {
      * @param fileName
      * @return
      */
-    public static  Map<String, Long> getExtraNum(String fileName) {
+    public static Map<String, Long> getExtraNum(String fileName) {
         Map<String, Long> hashMap = new HashMap<>();
         hashMap.put(extraKeyDate, 0L);
         hashMap.put(extraKeyNo, 0L);
@@ -233,7 +252,7 @@ public class FileHandler {
      * @param fileName
      * @return
      */
-    public static  String removeExtra(String fileName) {
+    public static String removeExtra(String fileName) {
         //如果是自定义拓展
         if (isAutoExtra(fileName)) {
 
@@ -252,7 +271,7 @@ public class FileHandler {
      * @param fileName
      * @return
      */
-    public static  boolean isAutoExtra(String fileName) {
+    public static boolean isAutoExtra(String fileName) {
         Matcher matcher = ptCompileAll.matcher(fileName);
         return matcher.find();
     }
